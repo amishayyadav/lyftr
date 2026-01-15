@@ -5,6 +5,12 @@ import hmac
 import hashlib
 
 from app.storage import init_db, insert_message
+from fastapi import Query
+from app.storage import fetch_messages
+
+from app.storage import fetch_stats
+
+
 
 
 app = FastAPI()
@@ -67,3 +73,30 @@ def webhook(
     # idempotent response
     return {"status": "ok"}
 
+@app.get("/messages")
+def list_messages(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    from_msisdn: str | None = Query(None, alias="from"),
+    since: str | None = None,
+    q: str | None = None
+):
+    data, total = fetch_messages(
+        limit=limit,
+        offset=offset,
+        from_msisdn=from_msisdn,
+        since=since,
+        q=q
+    )
+
+    return {
+        "data": data,
+        "total": total,
+        "limit": limit,
+        "offset": offset
+    }
+
+
+@app.get("/stats")
+def get_stats():
+    return fetch_stats()
