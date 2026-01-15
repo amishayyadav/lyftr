@@ -4,7 +4,7 @@ A FastAPI-based backend service that receives webhook messages, validates them u
 
 ---
 
-## ---------------- Features----------------------------
+## Features
 
 - FastAPI backend
 - Secure webhook with HMAC-SHA256 validation
@@ -17,7 +17,7 @@ A FastAPI-based backend service that receives webhook messages, validates them u
 
 ---
 
-## ----------------- Tech Stack----------------
+## Tech Stack
 
 - Python 3.12
 - FastAPI
@@ -28,8 +28,9 @@ A FastAPI-based backend service that receives webhook messages, validates them u
 
 ---
 
-## -------------- Project Structure--------------
+## Project Structure
 
+```
 lyftr/
 │
 ├── app/
@@ -43,47 +44,60 @@ lyftr/
 ├── docker-compose.yml
 ├── requirements.txt
 ├── README.md
-
+```
 
 ---
 
-🐳 --------------------------Running With Docker----------------------------
-Prerequisites
+## Running With Docker
 
-Docker
+### Prerequisites
 
-Docker Compose
+- Docker
+- Docker Compose
 
-Build and run
+### Build and run
+
+```bash
 docker compose build
 docker compose up
+```
 
+---
 
+## Health Endpoints
 
+### Live
 
-❤️ ----------------------------Health Endpoints------------------------
-Live
-GET /health/live
-
+**GET** `/health/live`
 
 Response:
-
+```json
 { "status": "live" }
+```
 
-Ready
-GET /health/ready
+### Ready
+
+**GET** `/health/ready`
+
 Response:
-
+```json
 { "status": "ready" }
+```
 
-------------------------- Webhook Endpoint------------------------------
-Endpoint
-POST /webhook
+---
 
-Headers
-Content-Type: application/json
-X-Signature: <HMAC_SHA256_SIGNATURE>
-Sample Body
+## Webhook Endpoint
+
+**POST** `/webhook`
+
+### Headers
+
+- `Content-Type: application/json`
+- `X-Signature: <HMAC_SHA256_SIGNATURE>`
+
+### Sample Body
+
+```json
 {
   "message_id": "m1",
   "from_": "+919876543210",
@@ -91,31 +105,31 @@ Sample Body
   "ts": "2025-01-15T10:00:00Z",
   "text": "Hello"
 }
+```
 
-Behavior
+### Behavior
 
-Invalid signature → 401 Unauthorized
+- Invalid signature → 401 Unauthorized
+- Valid signature → message stored → `{"status":"ok"}`
+- Duplicate message_id → ignored → `{"status":"ok"}`
 
-Valid signature → message stored → {"status":"ok"}
+---
 
-Duplicate message_id → ignored → {"status":"ok"}
+## List Messages API
 
---------------------------- List Messages API--------------------
-Endpoint
-GET /messages
+**GET** `/messages`
 
-Query Parameters
+### Query Parameters
 
-limit – number of messages
+- `limit` – number of messages
+- `offset` – pagination offset
+- `from` – filter by sender
+- `since` – ISO timestamp
+- `q` – text search
 
-offset – pagination offset
+### Response
 
-from – filter by sender
-
-since – ISO timestamp
-
-q – text search
-Response
+```json
 {
   "data": [
     {
@@ -130,12 +144,17 @@ Response
   "limit": 50,
   "offset": 0
 }
+```
 
-------------------------------- Stats API--------------------------
-Endpoint
-GET /stats
+---
 
-Response
+## Stats API
+
+**GET** `/stats`
+
+### Response
+
+```json
 {
   "total_messages": 1,
   "unique_senders": 1,
@@ -148,21 +167,22 @@ Response
   "first_message_ts": "2025-01-15T10:00:00Z",
   "last_message_ts": "2025-01-15T10:00:00Z"
 }
+```
 
------------------------- Design Decisions-------------------------
+---
 
-HMAC-SHA256 ensures webhook authenticity
+## Design Decisions
 
-SQLite chosen for simplicity and portability
+- HMAC-SHA256 ensures webhook authenticity
+- SQLite chosen for simplicity and portability
+- Idempotency implemented using message_id as PRIMARY KEY
+- Database logic separated from API routes
+- Docker used for consistent deployment
 
-Idempotency implemented using message_id as PRIMARY KEY
+---
 
-Database logic separated from API routes
+## Author
 
-Docker used for consistent deployment
-
-👤 ********************Author**********************************
-
-Amisha Yadav
-B.Tech CSE
-Backend Developer (Python, FastAPI)
+**Amisha Yadav**
+- B.Tech CSE
+- Backend Developer (Python, FastAPI)
