@@ -4,7 +4,7 @@ A FastAPI-based backend service that receives webhook messages, validates them u
 
 ---
 
-## 🚀 Features
+## ---------------- Features----------------------------
 
 - FastAPI backend
 - Secure webhook with HMAC-SHA256 validation
@@ -17,7 +17,7 @@ A FastAPI-based backend service that receives webhook messages, validates them u
 
 ---
 
-## 🛠 Tech Stack
+## ----------------- Tech Stack----------------
 
 - Python 3.12
 - FastAPI
@@ -28,5 +28,141 @@ A FastAPI-based backend service that receives webhook messages, validates them u
 
 ---
 
-## 📁 Project Structure
+## -------------- Project Structure--------------
 
+lyftr/
+│
+├── app/
+│ ├── main.py # FastAPI routes
+│ ├── storage.py # Database logic
+│
+├── data/
+│ └── app.db # SQLite database (auto-created)
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── README.md
+
+
+---
+
+🐳 --------------------------Running With Docker----------------------------
+Prerequisites
+
+Docker
+
+Docker Compose
+
+Build and run
+docker compose build
+docker compose up
+
+
+
+
+❤️ ----------------------------Health Endpoints------------------------
+Live
+GET /health/live
+
+
+Response:
+
+{ "status": "live" }
+
+Ready
+GET /health/ready
+Response:
+
+{ "status": "ready" }
+
+------------------------- Webhook Endpoint------------------------------
+Endpoint
+POST /webhook
+
+Headers
+Content-Type: application/json
+X-Signature: <HMAC_SHA256_SIGNATURE>
+Sample Body
+{
+  "message_id": "m1",
+  "from_": "+919876543210",
+  "to": "+14155550100",
+  "ts": "2025-01-15T10:00:00Z",
+  "text": "Hello"
+}
+
+Behavior
+
+Invalid signature → 401 Unauthorized
+
+Valid signature → message stored → {"status":"ok"}
+
+Duplicate message_id → ignored → {"status":"ok"}
+
+--------------------------- List Messages API--------------------
+Endpoint
+GET /messages
+
+Query Parameters
+
+limit – number of messages
+
+offset – pagination offset
+
+from – filter by sender
+
+since – ISO timestamp
+
+q – text search
+Response
+{
+  "data": [
+    {
+      "message_id": "m1",
+      "from": "+919876543210",
+      "to": "+14155550100",
+      "ts": "2025-01-15T10:00:00Z",
+      "text": "Hello"
+    }
+  ],
+  "total": 1,
+  "limit": 50,
+  "offset": 0
+}
+
+------------------------------- Stats API--------------------------
+Endpoint
+GET /stats
+
+Response
+{
+  "total_messages": 1,
+  "unique_senders": 1,
+  "top_senders": [
+    {
+      "from": "+919876543210",
+      "count": 1
+    }
+  ],
+  "first_message_ts": "2025-01-15T10:00:00Z",
+  "last_message_ts": "2025-01-15T10:00:00Z"
+}
+
+------------------------ Design Decisions-------------------------
+
+HMAC-SHA256 ensures webhook authenticity
+
+SQLite chosen for simplicity and portability
+
+Idempotency implemented using message_id as PRIMARY KEY
+
+Database logic separated from API routes
+
+Docker used for consistent deployment
+
+👤 ********************Author**********************************
+
+Amisha Yadav
+B.Tech CSE
+Backend Developer (Python, FastAPI)
